@@ -1,0 +1,70 @@
+function result = Linear1DInterpolate()
+im1 = imread('ONH1.tif');
+result = im1;
+column = size(im1,2);
+row = size(im1,1);
+
+numLineMissing = find(sum(im1,2)==0);
+for i = 1 : column
+    for jj = 1: length(numLineMissing)
+        j = numLineMissing(jj);
+        above1 = j+1;
+        below1 = j-1;
+        
+        xi = [];
+        yi = [];
+        
+        while above1 <= row && ismember(above1, numLineMissing)
+            above1 = above1 + 1;
+        end
+        
+        if above1 ~= row + 1
+            yi = [yi im1(above1, i)];
+            xi = [xi above1];
+        end
+        
+        above2 = above1 + 1;
+        while above2 <= row && ismember(above2, numLineMissing)
+            above2 = above2 + 1;
+        end
+        
+        if above2 ~= row + 1
+            yi = [yi im1(above2, i)];
+            xi = [xi above2];
+        end
+        
+        while below1 >= 1 && ismember(below1, numLineMissing)
+            below1 = below1 - 1;
+        end
+        
+        if below1 ~= 0
+            yi = [yi im1(below1, i)];
+            xi = [xi below1];
+        end
+       
+        below2 = below1 - 1;
+        while below2 >= 1 && ismember(below2, numLineMissing)
+            below2 = below2 - 1;
+        end
+        
+        if below2 ~= 0
+            yi = [yi im1(below2, i)];
+            xi = [xi below2];
+        end
+        
+        len = size(xi,1);
+        sum1 = 0;
+        for k = 1 : len
+            product = yi(k);
+            for q = 1 : len
+                if q ~= k
+                    product = product * (j - xi(q)) / (xi(k) - xi(q));
+                end
+            end
+            sum1 = sum1 + product;
+        end
+        
+        result(j, i) = sum1;
+        
+    end
+end
