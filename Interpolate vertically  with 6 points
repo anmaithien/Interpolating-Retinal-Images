@@ -1,0 +1,55 @@
+ function result = Linear1DInterpolate(N)
+im1 = imread('ONH1.tif');
+result = im1;
+numLineMissing = find(sum(im1,2)==0);
+column = size(im1,2);
+row = size(im1,1);
+
+
+for i = 1 : column
+    for jj = 1: length(numLineMissing)
+        j = numLineMissing(jj);
+        above = j+1;
+        below = j-1;
+        
+        xi = [];
+        yi = [];
+        
+        numPnt = 0;
+        while above <= row && numPnt < N
+            if ~ismember(above, numLineMissing)
+                yi = [yi im1(above, i)];
+                xi = [xi above];
+                numPnt = numPnt + 1;
+            end
+            above = above + 1;
+        end
+        
+        numPnt = 0;
+        while below >= 1 && numPnt < N
+            if ~ismember(below, numLineMissing)
+                yi = [yi im1(below, i)];
+                xi = [xi below];
+                numPnt = numPnt + 1;
+            end
+            below = below - 1;
+        end
+        
+        len = size(xi,2);
+        sum1 = 0;
+        xi = double(xi);
+        yi = double(yi);
+        for k = 1 : len
+            product = yi(k);
+            for q = 1 : len
+                if q ~= k
+                    product = product * (j - xi(q)) / (xi(k) - xi(q));
+                end
+            end
+            sum1 = sum1 + product;
+        end
+        
+        result(j, i) = sum1;
+        
+    end
+end
